@@ -14,6 +14,8 @@ int preguntaActual = 0;
 int opcionSeleccionada = 0;
 bool opcionConfirmada = false;
 bool enSeleccionZona = true;
+bool reOrdernarRespuestas = true;
+int respuestaCorrecta = 0;
 
 // Opciones de zonas de estudio
 const char* zonas[3] = {
@@ -71,6 +73,26 @@ void loop() {
   } else {
     manejarPreguntasYRespuestas();
   }
+}
+
+void reOrdenarRespuestasFunc() {
+  reOrdernarRespuestas = false;
+  //El indice correcto asumiendo que la respuesta correcta siempre es la primera
+  int indiceCorrecto = 0;
+
+  for (int i = 3; i > 0; i--) {
+    int j = random(0, i+1);
+    if (i == indiceCorrecto){
+      indiceCorrecto = j;
+    }
+    else if(j == indiceCorrecto){
+      indiceCorrecto = i;
+    }
+    const char* temp = opcionesActual[preguntaActual][i];
+    opcionesActual[preguntaActual][i] = opcionesActual[preguntaActual][j];
+    opcionesActual[preguntaActual][j] = temp;
+  }
+  respuestaCorrecta = indiceCorrecto;
 }
 
 void mostrarBienvenida() {
@@ -173,12 +195,16 @@ void manejarPreguntasYRespuestas() {
 
   if (digitalRead(botonSeleccionar) == LOW && !opcionConfirmada) {
     opcionConfirmada = true;
+    reOrdernarRespuestas = true;
     verificarOpcion();
     delay(300);
   }
 }
 
 void mostrarPreguntaYOpcion() {
+  if(reOrdernarRespuestas){
+    reOrdenarRespuestasFunc();
+  }
   lcd.clear();
   // Mostrar la pregunta
   lcd.setCursor(0, 0);
@@ -210,6 +236,5 @@ void verificarOpcion() {
 }
 
 bool esRespuestaCorrecta() {
-  // Implementa tu lógica de verificación aquí
-  return opcionSeleccionada == 0; // Asumiendo que la primera opción es correcta
+  return opcionSeleccionada == respuestaCorrecta; 
 }
