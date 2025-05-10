@@ -16,6 +16,7 @@ bool opcionConfirmada = false;
 bool enSeleccionZona = true;
 bool reOrdernarRespuestas = true;
 int respuestaCorrecta = 0;
+int zonaSeleccion = 0;
 
 // Opciones de zonas de estudio
 const char* zonas[3] = {
@@ -27,20 +28,20 @@ const char* zonas[3] = {
 // Preguntas y opciones para cada zona
 const char* preguntasGit[2] = {"Que es un commit?", "Como crear un branch?"};
 const char* opcionesGit[2][3] = {
-  {"1. Guardar cambios", "2. Crear rama", "3. Fusionar ramas"},
-  {"1. git branch", "2. git merge", "3. git init"}
+  {". Guardar cambios", ". Crear rama", ". Fusionar ramas"},
+  {". git branch", ". git merge", ". git init"}
 };
 
 const char* preguntasBash[2] = {"Que es un script?", "Como listar archivos?"};
 const char* opcionesBash[2][3] = {
-  {"1. Programa de comandos", "2. Editor de texto", "3. Administrador"},
-  {"1. ls", "2. cd", "3. pwd"}
+  {". Programa de comandos", ". Editor de texto", ". Administrador"},
+  {". ls", ". cd", ". pwd"}
 };
 
 const char* preguntasLinux[2] = {"Como actualizar?", "Que es sudo?"};
 const char* opcionesLinux[2][3] = {
-  {"1. apt-get update", "2. chmod", "3. mv"},
-  {"1. Comando de superusuario", "2. Editor de texto", "3. Lista de procesos"}
+  {". apt-get update", ". chmod", ". mv"},
+  {". Comando de superusuario", ". Editor de texto", ". Lista de procesos"}
 };
 
 // Variables para gestionar las preguntas y respuestas actuales
@@ -80,7 +81,7 @@ void reOrdenarRespuestasFunc() {
   //El indice correcto asumiendo que la respuesta correcta siempre es la primera
   int indiceCorrecto = 0;
 
-  for (int i = 3; i > 0; i--) {
+  for (int i = 2; i > 0; i--) {
     int j = random(0, i+1);
     if (i == indiceCorrecto){
       indiceCorrecto = j;
@@ -126,6 +127,7 @@ void seleccionarZonaInicial() {
   lcd.print("Elige zona de");
   lcd.setCursor(0, 1);
   lcd.print("estudio:");
+  delay(1000);
   mostrarZonaActual();
 }
 
@@ -158,6 +160,7 @@ void mostrarZonaActual() {
 
 void confirmarZonaSeleccionada() {
   enSeleccionZona = false;
+  zonaSeleccion = opcionSeleccionada;
   switch (opcionSeleccionada) {
     case 0: // Preguntas de git
       preguntasActual = preguntasGit;
@@ -205,6 +208,7 @@ void mostrarPreguntaYOpcion() {
   if(reOrdernarRespuestas){
     reOrdenarRespuestasFunc();
   }
+
   lcd.clear();
   // Mostrar la pregunta
   lcd.setCursor(0, 0);
@@ -214,9 +218,11 @@ void mostrarPreguntaYOpcion() {
   for (int i = 0; i < 3; i++) {
     lcd.setCursor(0, i + 1);
     if (i == opcionSeleccionada) {
-      lcd.print("> ");  // Flecha más pequeña
+      lcd.print("> ");// Flecha más pequeña
+      lcd.print(i+1);
     } else {
-      lcd.print("  ");  // Espacios
+      lcd.print("  ");// Espacios
+      lcd.print(i+1); 
     }
     lcd.print(opcionesActual[preguntaActual][i]);
   }
@@ -228,13 +234,48 @@ void verificarOpcion() {
   lcd.print(esRespuestaCorrecta() ? "Correcto!" : "Incorrecto!");
   delay(1000);
 
-  // Pasar a la siguiente pregunta o reiniciar
-  preguntaActual = (preguntaActual + 1) % totalPreguntas;
   opcionSeleccionada = 0;
   opcionConfirmada = false;
+  if(preguntaActual==1){
+    seleccionarZonaInicial();
+    reiniciarData();
+    return;
+  }
+
+  preguntaActual = (preguntaActual + 1) % totalPreguntas;
   mostrarPreguntaYOpcion();
 }
 
 bool esRespuestaCorrecta() {
   return opcionSeleccionada == respuestaCorrecta; 
+}
+
+void reiniciarData() {
+  preguntaActual = 0;
+  enSeleccionZona = true;
+  reOrdernarRespuestas = true;
+    switch (zonaSeleccion) {
+    case 0: // Opciones de git
+      opcionesGit[0][0] = ". Guardar cambios";
+      opcionesGit[0][1] = ". Crear rama";
+      opcionesGit[0][2] =". Fusionar ramas";
+      opcionesGit[1][0] =". git branch";
+      opcionesGit[1][1] =". git merge";
+      opcionesGit[1][2] =". git init";
+    case 1: // Opciones de bash
+    opcionesBash[0][0] = ". Programa de comandos";
+    opcionesBash[0][1] =". Editor de texto";
+    opcionesBash[0][2] = ". Administrador";
+    opcionesBash[1][0] =". ls";
+    opcionesBash[1][1] =". cd";
+    opcionesBash[1][2] =". pwd";
+    case 2: // Opciones de linux
+    opcionesLinux[0][0] = ". apt-get update";
+    opcionesLinux[0][1] =". chmod";
+    opcionesLinux[0][2] =". mv";
+    opcionesLinux[1][0] =". Comando de superusuario";
+    opcionesLinux[1][1] =". Editor de texto";
+    opcionesLinux[1][2] =". Lista de procesos";
+  }
+  zonaSeleccion = 0;
 }
