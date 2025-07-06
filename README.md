@@ -12,4 +12,4 @@
 
 🚀 PROTOTIPO:
 
-<img src="Proteus_File/image-3.png" alt="Imagen Del Prototipo" width="500" />
+<img src="https://raw.githubusercontent.com/kokoaespol/kokoa-electronics-trivia/refs/heads/main/Proteus_file/image-3.png" alt="Imagen Del Prototipo" width="500" />
